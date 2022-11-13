@@ -1,4 +1,4 @@
-package main
+package quiz2
 
 import (
 	"encoding/csv"
@@ -26,6 +26,7 @@ func main() {
 	if err != nil {
 		panic("Error opening file")
 	}
+	defer file.Close()
 
 	var csvReader = csv.NewReader(file)
 
