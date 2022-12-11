@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -90,6 +91,10 @@ scanner:
 				} else {
 					for i, entry := range currentDir.entries {
 						if entry.Name == commands[2] {
+							// we use i here fetch the entry because the entry inside the for loop is the copy of entry in entries
+							// and so if we try to use it's address, we'll be pointing at the address of the variable that holds that particular copy
+							// and not the address of the actual entry.
+							// i.e. entry here will point to the address of the entry variable in the for loop, which will always point to the last local copy of the entry
 							currentDir = &currentDir.entries[i]
 							continue scanner
 						}
@@ -137,5 +142,28 @@ scanner:
 	})
 	// log.Println("Root", root.entries[0].entries)
 	log.Println("Sum", sum)
+
+	const (
+		TotalAvailableDiskSpace = 70000000
+		RequiredSpaceForUpdate  = 30000000
+	)
+	TotalRemainingSpace := TotalAvailableDiskSpace - calculateSize(root)
+
+	var sizes []int
+	walkDir(root, func(dir DirEntry) {
+		if dir.isDir {
+			sizes = append(sizes, calculateSize(dir))
+		}
+	})
+
+	// sort the sizes
+	sort.Ints(sizes)
+	for _, size := range sizes {
+		if (TotalRemainingSpace + size) >= RequiredSpaceForUpdate {
+			log.Println("Size", size)
+			break
+		}
+
+	}
 
 }
